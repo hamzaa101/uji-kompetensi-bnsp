@@ -1,108 +1,176 @@
 # Sistem E-Commerce Penjualan Obat Klinik Makmur Jaya
 
-Prototype full-stack Laravel untuk uji kompetensi BNSP skema Web Developer. Sistem ini mendukung penjualan obat online dan offline, role admin/apoteker/kasir/pasien, stok batch FIFO, resep dokter, laporan SQL, PDF, queue import CSV, audit log, notifikasi, dan monitoring resource prototype.
+Prototype full-stack Laravel untuk uji kompetensi BNSP skema Web Developer. Aplikasi ini dibuat sebagai demo sistem e-commerce penjualan obat klinik dengan alur online dan offline, role admin/apoteker/kasir/pasien, stok batch FIFO, resep dokter, laporan, PDF, import CSV, audit log, notifikasi, monitoring resource, dan simulasi alert.
 
 ## Tech Stack
 
-- Laravel 13.14.0, PHP 8.3.16, Composer 2.8.8.
-- Blade, Tailwind CSS 4, Vite 8, Chart.js.
-- Database default lokal: SQLite. Migration tetap memakai tipe Laravel portable untuk MySQL/PostgreSQL.
-- Queue database driver.
-- PDF export: dompdf/dompdf 3.1.
+- Laravel 13, PHP 8.3, Composer.
+- Blade, Tailwind CSS 4, Vite 8, JavaScript ringan.
+- Chart.js untuk grafik dashboard admin.
+- SQLite untuk demo lokal; migration tetap portable untuk MySQL/PostgreSQL.
+- Queue Laravel untuk import CSV.
+- Dompdf untuk export PDF.
 
-## Fitur Utama
+## Fitur Demo
 
-- Login, logout, register pasien, session timeout 30 menit, role middleware.
-- Dashboard admin dengan statistik, chart, notifikasi, dan monitoring.
+- Auth dan role access: admin, apoteker, kasir, pasien.
+- Dashboard admin dengan statistik, chart stabil, notifikasi, dan monitoring ringkas.
 - CRUD kategori, supplier, obat, dan batch stok.
-- Upload gambar obat dan upload/preview resep.
-- Katalog, search/filter/sorting, autocomplete, fuzzy suggestion sederhana.
-- Cart, checkout online, validasi stok, resep wajib untuk obat resep.
-- Apoteker approve/reject resep dan stok dikurangi FIFO saat approve.
-- Kasir membuat transaksi offline/counter.
-- Laporan penjualan raw SQL aman dengan binding dan export PDF.
-- Import CSV obat melalui queue database.
-- Simulasi low stock, expired medicine, application error, audit log, error log.
+- Upload gambar obat dan upload resep.
+- Katalog obat dengan search, filter, sorting, autocomplete, dan suggestion sederhana.
+- Cart dan checkout online.
+- Obat resep wajib upload resep, lalu diverifikasi apoteker.
+- Pengurangan stok FIFO dari batch expiry terdekat.
+- Transaksi offline oleh kasir dan halaman struk.
+- Laporan penjualan, export PDF, import CSV via queue.
+- Audit log, error log, monitoring resource, dan simulasi alert.
 
-## Instalasi dari Nol
+## Instalasi
 
 ```bash
 composer install
 npm install --ignore-scripts
 cp .env.example .env
 php artisan key:generate
-php artisan migrate --seed
 php artisan storage:link
+php artisan migrate:fresh --seed
 npm run build
+```
+
+Untuk Windows PowerShell, jika `npm` terkena policy script, gunakan:
+
+```bash
+npm.cmd install --ignore-scripts
+npm.cmd run build
+```
+
+Jika memakai SQLite, pastikan `.env` berisi:
+
+```env
+DB_CONNECTION=sqlite
+DB_DATABASE=database/database.sqlite
+```
+
+Jika file SQLite belum ada:
+
+```bash
+type nul > database/database.sqlite
+```
+
+## Menjalankan Aplikasi
+
+Terminal 1:
+
+```bash
 php artisan serve
 ```
 
-Jika memakai SQLite, pastikan `DB_CONNECTION=sqlite` dan file `database/database.sqlite` tersedia. Jika memakai PostgreSQL/MySQL, isi konfigurasi database di `.env` tanpa menyimpan credential produksi ke repository.
-
-## Akun Demo
-
-- Admin: `admin@klinik.test` / `password123`
-- Apoteker: `apoteker@klinik.test` / `password123`
-- Kasir: `kasir@klinik.test` / `password123`
-- Pasien: `pasien@klinik.test` / `password123`
-
-## Queue, Scheduler, Import, PDF
-
-Jalankan queue:
+Terminal 2, hanya jika ingin import CSV diproses queue:
 
 ```bash
 php artisan queue:work
 ```
 
-Collect metrics dan alert:
+Untuk mode development asset:
 
 ```bash
-php artisan app:collect-resource-metrics --alerts
+npm run dev
 ```
 
-Import CSV:
-
-1. Login admin.
-2. Buka `/admin/imports`.
-3. Upload CSV sesuai contoh `storage/app/examples/sample_medicines.csv` atau `docs/sample_medicines.csv`.
-4. Jalankan `php artisan queue:work`.
-
-Export PDF:
-
-1. Login admin.
-2. Buka `/admin/reports`.
-3. Pilih periode.
-4. Klik `Export PDF`.
-
-## Test dan Formatting
+Untuk presentasi/demo, cukup gunakan asset hasil:
 
 ```bash
-php artisan test
-vendor/bin/pint
 npm run build
+php artisan serve
+```
+
+## Akun Demo
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | `admin@klinik.test` | `password123` |
+| Apoteker | `apoteker@klinik.test` | `password123` |
+| Kasir | `kasir@klinik.test` | `password123` |
+| Pasien | `pasien@klinik.test` | `password123` |
+
+## Queue dan Import CSV
+
+1. Login sebagai admin.
+2. Buka `/admin/imports`.
+3. Upload CSV contoh dari `storage/app/examples/sample_medicines.csv` atau `docs/sample_medicines.csv`.
+4. Pastikan queue worker berjalan:
+
+```bash
+php artisan queue:work
+```
+
+5. Refresh halaman import untuk melihat status import.
+
+Jika queue belum berjalan, status import bisa tetap `pending`. Jalankan `php artisan queue:work`, lalu refresh.
+
+## Export PDF
+
+1. Login sebagai admin.
+2. Buka `/admin/reports`.
+3. Pilih periode jika perlu.
+4. Klik `Export PDF`.
+
+Jika PDF gagal, pastikan `composer install` sudah selesai dan ekstensi PHP `dom`, `gd`, serta `mbstring` aktif.
+
+## Simulasi Alert
+
+1. Login sebagai admin.
+2. Buka `/admin/simulations`.
+3. Klik:
+   - `Low Stock Alert` untuk notifikasi stok rendah.
+   - `Expired Alert` untuk notifikasi obat hampir kedaluwarsa.
+   - `Application Error` untuk membuat error log critical.
+4. Cek hasil di notifikasi, audit log, dan error log.
+
+## Validasi Sebelum Presentasi
+
+```bash
+php artisan migrate:fresh --seed
+npm run build
+php artisan test
 php artisan route:list
 ```
 
-## Simulasi Demo untuk Asesor
+Hasil validasi terakhir tahap final:
 
-1. Login admin, lihat dashboard, chart, notifikasi, monitoring.
-2. CRUD obat, upload gambar, tambah batch stok.
-3. Buka laporan, tunjukkan raw SQL report dan export PDF.
-4. Upload CSV import lalu jalankan queue.
-5. Login pasien, search/filter obat, tambah cart, checkout obat bebas.
-6. Checkout obat resep dengan upload resep.
-7. Login apoteker, approve/reject resep, jelaskan stok FIFO.
-8. Login kasir, buat transaksi offline dan preview struk.
-9. Tunjukkan error log, audit log, simulasi alert, dan dokumen cutover/UAT/debugging.
+- `php artisan migrate:fresh --seed`: berhasil.
+- `npm.cmd run build`: berhasil.
+- `php artisan test`: 16 test, 76 assertion, semua passed.
+- `php artisan route:list`: 75 route.
 
-## Troubleshooting Singkat
+## Alur Demo Singkat
 
-- Storage image tidak muncul: jalankan `php artisan storage:link`.
-- Queue import tidak bergerak: jalankan `php artisan queue:work`.
-- PDF gagal: pastikan `composer install` selesai dan ekstensi PHP `dom`, `gd`, `mbstring` aktif.
-- Database kosong: jalankan `php artisan migrate:fresh --seed`.
-- Npm PowerShell error: gunakan `npm.cmd install` atau terminal yang mengizinkan script.
+1. Admin: login, dashboard, CRUD master data, batch stok, laporan PDF, import CSV, simulasi alert.
+2. Pasien: login, katalog, search/filter, tambah cart, checkout obat bebas, checkout obat resep dengan upload resep.
+3. Apoteker: login, buka verifikasi resep, approve/reject, jelaskan stok FIFO.
+4. Kasir: login, buat transaksi offline, lihat struk.
+5. Admin lagi: cek audit log, error log, monitoring, dan notifikasi.
+
+Detail urutan demo ada di `docs/19_demo_script.md`.
+
+## Troubleshooting
+
+| Masalah | Solusi |
+|---|---|
+| Tidak bisa login | Jalankan `php artisan migrate:fresh --seed`, lalu gunakan akun demo. |
+| Gambar obat/resep tidak tampil | Jalankan `php artisan storage:link`; pastikan file ada di `storage/app/public`. |
+| Import CSV tidak berubah dari pending | Jalankan `php artisan queue:work`. |
+| PDF gagal diunduh | Cek dependency Composer dan ekstensi PHP `dom`, `gd`, `mbstring`. |
+| Chart terasa berat | Gunakan build terbaru; chart sudah dimatikan animasinya dan memakai instance registry. |
+| Notifikasi tidak update | Pastikan user login dan endpoint `/notifications/unread-count` bisa diakses. |
+| Checkout gagal | Pastikan cart tidak kosong, stok cukup, dan upload resep untuk obat resep. |
+| Route error setelah perubahan | Jalankan `php artisan route:list` dan `php artisan test`. |
 
 ## Limitasi Prototype
 
-Pembayaran masih simulasi, notifikasi memakai polling, monitoring resource masih sederhana, dan email memakai log driver jika mail belum dikonfigurasi. Untuk produksi, pertimbangkan Laravel Pulse/Telescope, Sentry, Prometheus/Grafana, backup database terjadwal, dan payment gateway resmi.
+- Pembayaran masih simulasi, belum terhubung payment gateway.
+- Notifikasi memakai polling ringan, belum memakai broadcasting/WebSocket.
+- Monitoring resource masih sederhana, bukan observability produksi.
+- Import CSV memakai queue Laravel; worker harus dijalankan untuk memproses job.
+- Belum ada browser E2E otomatis karena validasi utama saat ini memakai feature test Laravel dan smoke HTTP.
+- Untuk produksi, perlu hardening tambahan: backup database, audit keamanan, rate limit, payment gateway resmi, Sentry/Pulse/Telescope/Prometheus, dan deployment pipeline.

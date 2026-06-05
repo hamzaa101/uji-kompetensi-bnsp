@@ -23,3 +23,7 @@ Dashboard, raw SQL report, PDF export, import CSV queue, monitoring, notificatio
 ## v1.0 Demo Ready
 
 Docs asesmen, tests, README, sample CSV, UAT, demo script.
+
+## v1.1 Refactor Readiness
+
+Layout shell responsive, sidebar toggle, UI halaman prioritas, Chart.js lifecycle guard, polling aman, autocomplete debounce, upload preview cleanup, regression test demo utama, README final, demo script, UI refactor log, dan checklist presentasi BNSP.
