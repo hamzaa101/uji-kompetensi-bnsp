@@ -15,7 +15,7 @@
                     <p class="mt-1 text-xs text-slate-500">{{ $notification->created_at->diffForHumans() }}</p>
                 </div>
                 @unless($notification->is_read)
-                    <button class="btn btn-muted" data-read="{{ route('notifications.read', $notification) }}">Tandai Dibaca</button>
+                    <button class="btn btn-muted" data-notification-read="{{ route('notifications.read', $notification) }}">Tandai Dibaca</button>
                 @endunless
             </div>
         @endforeach
@@ -23,14 +23,3 @@
     {{ $notifications->links() }}
 </div>
 @endsection
-
-@push('scripts')
-<script>
-document.querySelectorAll('[data-read]').forEach(button => {
-    button.addEventListener('click', async () => {
-        await fetch(button.dataset.read, { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content } });
-        button.remove();
-    });
-});
-</script>
-@endpush

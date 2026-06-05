@@ -14,7 +14,12 @@
     </x-page-header>
 
     <div class="panel">
-        <div id="metrics" class="grid gap-4 md:grid-cols-3">
+        <div
+            id="metrics"
+            class="grid gap-4 md:grid-cols-3"
+            data-monitoring-endpoint="{{ route('admin.monitoring.latest') }}"
+            data-poll-interval="10000"
+        >
             <div class="stat"><span>Memory</span><strong data-key="memory_usage">{{ number_format($metric->memory_usage / 1024 / 1024, 2) }} MB</strong></div>
             <div class="stat"><span>Disk Used</span><strong data-key="disk_usage">{{ number_format($metric->disk_usage / 1024 / 1024 / 1024, 2) }} GB</strong></div>
             <div class="stat"><span>Queue Pending</span><strong data-key="queue_pending">{{ $metric->queue_pending }}</strong></div>
@@ -25,56 +30,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    window.KMJApp = window.KMJApp || {};
-    const metrics = document.getElementById('metrics');
-
-    if (!metrics) {
-        return;
-    }
-
-    if (window.KMJApp.monitoringInterval) {
-        clearInterval(window.KMJApp.monitoringInterval);
-    }
-
-    const updateMetrics = async () => {
-        if (!document.getElementById('metrics')) {
-            clearInterval(window.KMJApp.monitoringInterval);
-            window.KMJApp.monitoringInterval = null;
-            return;
-        }
-
-        if (document.hidden || window.KMJApp.monitoringRequestInFlight) {
-            return;
-        }
-
-        window.KMJApp.monitoringRequestInFlight = true;
-
-        try {
-            const response = await fetch("{{ route('admin.monitoring.latest') }}", {
-                headers: { Accept: 'application/json' },
-            });
-
-            if (!response.ok) {
-                return;
-            }
-
-            const metric = await response.json();
-            document.querySelector('[data-key="memory_usage"]').textContent = (metric.memory_usage / 1024 / 1024).toFixed(2) + ' MB';
-            document.querySelector('[data-key="disk_usage"]').textContent = (metric.disk_usage / 1024 / 1024 / 1024).toFixed(2) + ' GB';
-            document.querySelector('[data-key="queue_pending"]').textContent = metric.queue_pending;
-            document.querySelector('[data-key="request_count"]').textContent = metric.request_count;
-            document.querySelector('[data-key="error_count"]').textContent = metric.error_count;
-            document.querySelector('[data-key="avg_response_time"]').textContent = metric.avg_response_time + ' ms';
-        } finally {
-            window.KMJApp.monitoringRequestInFlight = false;
-        }
-    };
-
-    window.KMJApp.monitoringInterval = window.setInterval(updateMetrics, 10000);
-});
-</script>
-@endpush

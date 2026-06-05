@@ -59,72 +59,9 @@
         </div>
     </div>
 </div>
+
+<script id="admin-dashboard-chart-data" type="application/json">@json([
+    'dailySales' => $dailySales,
+    'statusRecap' => $statusRecap,
+])</script>
 @endsection
-
-@push('scripts')
-<script>
-function bootAdminDashboardCharts() {
-    if (!window.KlinikCharts) return;
-
-    const daily = @json($dailySales);
-    window.KlinikCharts.createOrUpdateChart('admin-sales-chart', {
-        type: 'line',
-        data: {
-            labels: daily.map(row => row.period),
-            datasets: [{
-                label: 'Omzet',
-                data: daily.map(row => row.revenue),
-                borderColor: '#0f766e',
-                backgroundColor: 'rgba(15, 118, 110, 0.12)',
-                borderWidth: 2,
-                pointRadius: 2,
-                pointHoverRadius: 3,
-                tension: 0.25,
-                fill: true,
-            }],
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        precision: 0,
-                    },
-                },
-            },
-        },
-    });
-
-    const statuses = @json($statusRecap);
-    window.KlinikCharts.createOrUpdateChart('admin-status-chart', {
-        type: 'bar',
-        data: {
-            labels: Object.keys(statuses),
-            datasets: [{
-                label: 'Order',
-                data: Object.values(statuses),
-                backgroundColor: '#2563eb',
-                borderRadius: 4,
-                maxBarThickness: 48,
-            }],
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        precision: 0,
-                    },
-                },
-            },
-        },
-    });
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bootAdminDashboardCharts, { once: true });
-} else {
-    bootAdminDashboardCharts();
-}
-</script>
-@endpush
