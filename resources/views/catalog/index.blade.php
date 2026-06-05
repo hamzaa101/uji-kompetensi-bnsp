@@ -11,7 +11,14 @@
 
     <div class="filter-panel relative">
         <form class="filter-grid">
-            <input id="search-input" name="search" value="{{ request('search') }}" placeholder="Cari obat">
+            <input
+                id="search-input"
+                name="search"
+                value="{{ request('search') }}"
+                placeholder="Cari obat"
+                data-autocomplete-url="{{ route('catalog.autocomplete') }}"
+                data-autocomplete-target="#autocomplete-box"
+            >
             <select name="category_id"><option value="">Semua kategori</option>@foreach($categories as $category)<option value="{{ $category->id }}" @selected(request('category_id') == $category->id)>{{ $category->name }}</option>@endforeach</select>
             <select name="type"><option value="">Semua type</option>@foreach($types as $type)<option value="{{ $type }}" @selected(request('type') === $type)>{{ str_replace('_', ' ', $type) }}</option>@endforeach</select>
             <select name="sort"><option value="">Nama A-Z</option><option value="price_asc" @selected(request('sort')==='price_asc')>Harga naik</option><option value="price_desc" @selected(request('sort')==='price_desc')>Harga turun</option></select>
@@ -64,26 +71,3 @@
     <div class="table-footer">{{ $medicines->links() }}</div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const input = document.getElementById('search-input');
-    const box = document.getElementById('autocomplete-box');
-
-    input?.addEventListener('input', async () => {
-        if (!box || input.value.length < 2) {
-            box?.classList.add('hidden');
-            return;
-        }
-
-        const response = await fetch("{{ route('catalog.autocomplete') }}?q=" + encodeURIComponent(input.value), {
-            headers: { Accept: 'application/json' },
-        });
-        const rows = await response.json();
-        box.innerHTML = rows.map(row => `<a href="${row.url}">${row.label}</a>`).join('');
-        box.classList.toggle('hidden', rows.length === 0);
-    });
-});
-</script>
-@endpush

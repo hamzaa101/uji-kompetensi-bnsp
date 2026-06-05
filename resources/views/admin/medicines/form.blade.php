@@ -27,7 +27,7 @@
             <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="is_active" value="1" @checked(old('is_active', $medicine->exists ? $medicine->is_active : true))> Aktif</label>
             <label class="field">
                 <span>Gambar Obat</span>
-                <input id="image-input" name="image" type="file" accept="image/jpeg,image/png,image/webp">
+                <input id="image-input" name="image" type="file" accept="image/jpeg,image/png,image/webp" data-preview-target="#image-preview">
                 <x-field-error name="image" />
                 <img id="image-preview" class="mt-3 h-28 w-28 rounded object-cover {{ $medicine->image_path ? '' : 'hidden' }}" src="{{ $medicine->image_path ? asset('storage/'.$medicine->image_path) : '' }}" alt="">
             </label>
@@ -39,15 +39,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-document.getElementById('image-input')?.addEventListener('change', event => {
-    const file = event.target.files?.[0];
-    const preview = document.getElementById('image-preview');
-    if (!file || !preview) return;
-    preview.src = URL.createObjectURL(file);
-    preview.classList.remove('hidden');
-});
-</script>
-@endpush

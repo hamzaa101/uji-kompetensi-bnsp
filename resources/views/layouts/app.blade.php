@@ -12,6 +12,10 @@
         id="app-shell"
         class="app-shell @auth is-authenticated @else is-guest @endauth"
         data-sidebar-storage-key="kmj.sidebar.collapsed"
+        @auth
+            data-notification-unread-url="{{ route('notifications.unread') }}"
+            data-notification-latest-url="{{ route('notifications.latest') }}"
+        @endauth
     >
         @include('layouts.partials.navbar')
 
@@ -28,14 +32,6 @@
         </div>
     </div>
 
-    @auth
-        <script>
-            window.notificationEndpoints = {
-                unread: "{{ route('notifications.unread') }}",
-                latest: "{{ route('notifications.latest') }}",
-            };
-        </script>
-    @endauth
     @stack('scripts')
 </body>
 </html>

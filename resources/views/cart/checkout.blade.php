@@ -23,7 +23,7 @@
             <form class="mt-4 space-y-4" method="post" enctype="multipart/form-data" action="{{ route('checkout.store') }}">
                 @csrf
                 <label class="field"><span>Metode Pembayaran</span><select name="payment_method"><option value="transfer">Transfer</option><option value="ewallet">Ewallet</option><option value="cash">Cash</option><option value="insurance">Insurance</option></select><x-field-error name="payment_method" /></label>
-                <label class="field"><span>Upload Resep</span><input id="prescription-input" name="prescription" type="file" accept="image/jpeg,image/png,image/webp"><x-field-error name="prescription" /><img id="prescription-preview" class="preview-image mt-3 hidden h-40 w-full" alt=""></label>
+                <label class="field"><span>Upload Resep</span><input id="prescription-input" name="prescription" type="file" accept="image/jpeg,image/png,image/webp" data-preview-target="#prescription-preview"><x-field-error name="prescription" /><img id="prescription-preview" class="preview-image mt-3 hidden h-40 w-full" alt=""></label>
                 <label class="field"><span>Catatan</span><textarea name="notes" rows="3">{{ old('notes') }}</textarea><x-field-error name="notes" /></label>
                 <button class="btn btn-primary w-full" type="submit">Buat Order</button>
             </form>
@@ -31,17 +31,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('prescription-input')?.addEventListener('change', event => {
-        const file = event.target.files?.[0];
-        const preview = document.getElementById('prescription-preview');
-        if (!file || !preview) return;
-        preview.src = URL.createObjectURL(file);
-        preview.classList.remove('hidden');
-    });
-});
-</script>
-@endpush
