@@ -1,0 +1,4 @@
+name,category,supplier,type,requires_prescription,price,min_stock,quantity,initial_quantity,batch_number,expiry_date,purchase_price,received_at,description,composition,dosage,side_effects
+Demo Flu Tablet,Obat Bebas,PT Sehat Sentosa,obat_bebas,false,9000,10,50,50,IMP-FLU-001,2026-12-05,5000,2026-06-05,Obat flu demo,Paracetamol campuran,Sesuai aturan pakai,Kantuk ringan
+Demo Antibiotik,Obat Resep,CV Farma Jaya,obat_resep,true,22000,10,25,25,IMP-AB-001,2027-02-05,15000,2026-06-05,Antibiotik demo,Amoxicillin,Dengan resep dokter,Alergi
+Demo Vitamin,Vitamin,PT Medika Nusantara,suplemen,false,18000,10,80,80,IMP-VIT-001,2027-06-05,10000,2026-06-05,Vitamin demo,Vitamin C,1x sehari,Mual ringan
