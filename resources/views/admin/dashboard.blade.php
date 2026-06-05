@@ -21,11 +21,15 @@
     <div class="grid gap-4 xl:grid-cols-2">
         <div class="panel">
             <h2 class="section-title">Grafik Penjualan Harian</h2>
-            <canvas id="salesChart" class="chart-box"></canvas>
+            <div class="chart-frame">
+                <canvas id="admin-sales-chart" class="chart-box"></canvas>
+            </div>
         </div>
         <div class="panel">
             <h2 class="section-title">Order Berdasarkan Status</h2>
-            <canvas id="statusChart" class="chart-box"></canvas>
+            <div class="chart-frame">
+                <canvas id="admin-status-chart" class="chart-box"></canvas>
+            </div>
         </div>
     </div>
 
@@ -59,20 +63,68 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    if (!window.Chart) return;
+function bootAdminDashboardCharts() {
+    if (!window.KlinikCharts) return;
+
     const daily = @json($dailySales);
-    new Chart(document.getElementById('salesChart'), {
+    window.KlinikCharts.createOrUpdateChart('admin-sales-chart', {
         type: 'line',
-        data: { labels: daily.map(row => row.period), datasets: [{ label: 'Omzet', data: daily.map(row => row.revenue), borderColor: '#0f766e', backgroundColor: 'rgba(15,118,110,.12)', tension: .25, fill: true }] },
-        options: { maintainAspectRatio: false }
+        data: {
+            labels: daily.map(row => row.period),
+            datasets: [{
+                label: 'Omzet',
+                data: daily.map(row => row.revenue),
+                borderColor: '#0f766e',
+                backgroundColor: 'rgba(15, 118, 110, 0.12)',
+                borderWidth: 2,
+                pointRadius: 2,
+                pointHoverRadius: 3,
+                tension: 0.25,
+                fill: true,
+            }],
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0,
+                    },
+                },
+            },
+        },
     });
+
     const statuses = @json($statusRecap);
-    new Chart(document.getElementById('statusChart'), {
+    window.KlinikCharts.createOrUpdateChart('admin-status-chart', {
         type: 'bar',
-        data: { labels: Object.keys(statuses), datasets: [{ label: 'Order', data: Object.values(statuses), backgroundColor: '#2563eb' }] },
-        options: { maintainAspectRatio: false }
+        data: {
+            labels: Object.keys(statuses),
+            datasets: [{
+                label: 'Order',
+                data: Object.values(statuses),
+                backgroundColor: '#2563eb',
+                borderRadius: 4,
+                maxBarThickness: 48,
+            }],
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0,
+                    },
+                },
+            },
+        },
     });
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootAdminDashboardCharts, { once: true });
+} else {
+    bootAdminDashboardCharts();
+}
 </script>
 @endpush

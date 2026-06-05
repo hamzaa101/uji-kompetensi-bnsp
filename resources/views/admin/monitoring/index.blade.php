@@ -30,12 +30,23 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     window.KMJApp = window.KMJApp || {};
+    const metrics = document.getElementById('metrics');
+
+    if (!metrics) {
+        return;
+    }
 
     if (window.KMJApp.monitoringInterval) {
         clearInterval(window.KMJApp.monitoringInterval);
     }
 
     const updateMetrics = async () => {
+        if (!document.getElementById('metrics')) {
+            clearInterval(window.KMJApp.monitoringInterval);
+            window.KMJApp.monitoringInterval = null;
+            return;
+        }
+
         if (document.hidden || window.KMJApp.monitoringRequestInFlight) {
             return;
         }
@@ -63,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    window.KMJApp.monitoringInterval = window.setInterval(updateMetrics, 5000);
+    window.KMJApp.monitoringInterval = window.setInterval(updateMetrics, 10000);
 });
 </script>
 @endpush

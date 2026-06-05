@@ -5,6 +5,101 @@ window.Chart = Chart;
 const appState = window.KMJApp ?? {};
 window.KMJApp = appState;
 
+const chartInstances = appState.chartInstances ?? {};
+appState.chartInstances = chartInstances;
+
+function mergeChartOptions(options = {}) {
+    const defaultPlugins = {
+        legend: {
+            labels: {
+                boxWidth: 12,
+                boxHeight: 12,
+                usePointStyle: true,
+            },
+        },
+        tooltip: {
+            intersect: false,
+            mode: 'index',
+        },
+    };
+
+    return {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        normalized: true,
+        resizeDelay: 150,
+        ...options,
+        plugins: {
+            ...defaultPlugins,
+            ...(options.plugins ?? {}),
+        },
+    };
+}
+
+function getChartById(id) {
+    const canvas = document.getElementById(id);
+
+    if (!canvas) {
+        return null;
+    }
+
+    return chartInstances[id] ?? Chart.getChart(canvas) ?? null;
+}
+
+function destroyExistingChart(id) {
+    const existing = getChartById(id);
+
+    if (existing) {
+        existing.destroy();
+    }
+
+    delete chartInstances[id];
+}
+
+function createOrUpdateChart(id, config) {
+    const canvas = document.getElementById(id);
+
+    if (!canvas || !config) {
+        return null;
+    }
+
+    const safeConfig = {
+        ...config,
+        options: mergeChartOptions(config.options),
+    };
+    const existing = getChartById(id);
+
+    if (existing && existing.config?.type === safeConfig.type) {
+        existing.data = safeConfig.data;
+        existing.options = safeConfig.options;
+        existing.update('none');
+        chartInstances[id] = existing;
+        return existing;
+    }
+
+    destroyExistingChart(id);
+    chartInstances[id] = new Chart(canvas, safeConfig);
+
+    return chartInstances[id];
+}
+
+function cleanupDetachedCharts() {
+    Object.keys(chartInstances).forEach((id) => {
+        const chart = chartInstances[id];
+
+        if (!document.getElementById(id) || !chart?.canvas?.isConnected) {
+            destroyExistingChart(id);
+        }
+    });
+}
+
+window.KlinikCharts = {
+    instances: chartInstances,
+    createOrUpdateChart,
+    destroyExistingChart,
+};
+
 function isDesktop() {
     return window.matchMedia('(min-width: 1024px)').matches;
 }
@@ -84,14 +179,21 @@ async function refreshNotificationCount() {
 
     const badge = document.getElementById('notification-count');
     if (!badge) {
+        if (appState.notificationInterval) {
+            clearInterval(appState.notificationInterval);
+            appState.notificationInterval = null;
+        }
+
         return;
     }
 
     appState.notificationRequestInFlight = true;
+    appState.notificationAbortController = new AbortController();
 
     try {
         const response = await fetch(window.notificationEndpoints.unread, {
             headers: { Accept: 'application/json' },
+            signal: appState.notificationAbortController.signal,
         });
 
         if (!response.ok) {
@@ -103,10 +205,14 @@ async function refreshNotificationCount() {
 
         badge.textContent = count;
         badge.classList.toggle('hidden', count < 1);
-    } catch {
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            return;
+        }
         // Polling is progressive enhancement; navigation remains usable if it fails.
     } finally {
         appState.notificationRequestInFlight = false;
+        appState.notificationAbortController = null;
     }
 }
 
@@ -115,12 +221,16 @@ function initNotificationPolling() {
         return;
     }
 
+    if (!document.getElementById('notification-count')) {
+        return;
+    }
+
     if (appState.notificationInterval) {
         clearInterval(appState.notificationInterval);
     }
 
     refreshNotificationCount();
-    appState.notificationInterval = window.setInterval(refreshNotificationCount, 7000);
+    appState.notificationInterval = window.setInterval(refreshNotificationCount, 15000);
 
     if (!appState.notificationVisibilityListener) {
         appState.notificationVisibilityListener = true;
@@ -133,6 +243,7 @@ function initNotificationPolling() {
 }
 
 function bootApp() {
+    cleanupDetachedCharts();
     initSidebar();
     initNotificationPolling();
 }

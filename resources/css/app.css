@@ -384,8 +384,12 @@
         @apply rounded-md bg-slate-50 p-4 text-center text-sm text-slate-500;
     }
 
+    .chart-frame {
+        @apply relative mt-4 h-72 max-h-72 min-h-72 w-full overflow-hidden;
+    }
+
     .chart-box {
-        @apply mt-4 h-72 max-h-72 w-full;
+        @apply block h-full max-h-full w-full;
     }
 
     .product-card {
