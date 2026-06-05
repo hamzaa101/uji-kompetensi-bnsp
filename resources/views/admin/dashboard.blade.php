@@ -4,10 +4,10 @@
 
 @section('content')
 <div class="space-y-6">
-    <div>
-        <h1 class="text-2xl font-semibold">Dashboard Admin</h1>
-        <p class="text-sm text-slate-600">Ringkasan penjualan, stok, notifikasi, dan resource aplikasi.</p>
-    </div>
+    <x-page-header
+        title="Dashboard Admin"
+        description="Ringkasan penjualan, stok, notifikasi, dan resource aplikasi untuk demo operasional klinik."
+    />
 
     <div class="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
         <div class="stat"><span>Penjualan Hari Ini</span><strong>Rp {{ number_format($stats['today_sales'], 0, ',', '.') }}</strong></div>
@@ -46,11 +46,11 @@
         </div>
         <div class="panel">
             <h2 class="section-title">Monitoring Resource</h2>
-            <dl class="grid gap-3 text-sm md:grid-cols-2">
-                <div><dt>Memory</dt><dd class="font-semibold">{{ number_format($monitoring['memory_usage'] / 1024 / 1024, 2) }} MB</dd></div>
-                <div><dt>Disk Used</dt><dd class="font-semibold">{{ number_format($monitoring['disk_usage'] / 1024 / 1024 / 1024, 2) }} GB</dd></div>
-                <div><dt>Queue Pending</dt><dd class="font-semibold">{{ $monitoring['queue_pending'] }}</dd></div>
-                <div><dt>Error Aktif</dt><dd class="font-semibold">{{ $monitoring['error_count'] }}</dd></div>
+            <dl class="mt-4 grid gap-3 text-sm md:grid-cols-2">
+                <div class="compact-card"><dt>Memory</dt><dd class="font-semibold">{{ number_format($monitoring['memory_usage'] / 1024 / 1024, 2) }} MB</dd></div>
+                <div class="compact-card"><dt>Disk Used</dt><dd class="font-semibold">{{ number_format($monitoring['disk_usage'] / 1024 / 1024 / 1024, 2) }} GB</dd></div>
+                <div class="compact-card"><dt>Queue Pending</dt><dd class="font-semibold">{{ $monitoring['queue_pending'] }}</dd></div>
+                <div class="compact-card"><dt>Error Aktif</dt><dd class="font-semibold">{{ $monitoring['error_count'] }}</dd></div>
             </dl>
         </div>
     </div>

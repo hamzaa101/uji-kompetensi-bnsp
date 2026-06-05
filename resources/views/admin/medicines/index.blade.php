@@ -4,12 +4,17 @@
 
 @section('content')
 <div class="space-y-4">
-    <div class="panel">
-        <div class="toolbar">
-            <div><h1 class="text-xl font-semibold">Data Obat</h1><p class="text-sm text-slate-600">Search, filter, sorting, stok batch, dan status aktif.</p></div>
+    <x-page-header
+        title="Data Obat"
+        description="Kelola data obat, kategori, harga, stok batch, dan status aktif yang tampil di katalog."
+    >
+        <x-slot:actions>
             <a class="btn btn-primary" href="{{ route('admin.medicines.create') }}">Tambah Obat</a>
-        </div>
-        <form class="mt-4 grid gap-3 md:grid-cols-5">
+        </x-slot:actions>
+    </x-page-header>
+
+    <div class="filter-panel">
+        <form class="filter-grid">
             <input name="search" placeholder="Cari obat" value="{{ request('search') }}">
             <select name="category_id"><option value="">Semua kategori</option>@foreach($categories as $category)<option value="{{ $category->id }}" @selected(request('category_id') == $category->id)>{{ $category->name }}</option>@endforeach</select>
             <select name="type"><option value="">Semua type</option>@foreach($types as $type)<option value="{{ $type }}" @selected(request('type') === $type)>{{ str_replace('_', ' ', $type) }}</option>@endforeach</select>
@@ -45,7 +50,7 @@
                 </tbody>
             </table>
         </div>
-        {{ $medicines->links() }}
+        <div class="table-footer">{{ $medicines->links() }}</div>
     </div>
 </div>
 @endsection

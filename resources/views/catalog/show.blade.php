@@ -3,12 +3,18 @@
 @section('title', $medicine->name)
 
 @section('content')
-<div class="grid gap-6 lg:grid-cols-[420px_1fr]">
-    <div>
+<div class="space-y-4">
+    <x-page-header
+        :title="$medicine->name"
+        description="Detail obat, ketersediaan stok, informasi penggunaan, dan opsi pembelian."
+    />
+
+    <div class="grid gap-6 lg:grid-cols-[minmax(280px,420px)_1fr]">
+    <div class="overflow-hidden rounded-lg border border-slate-200 bg-white">
         @if($medicine->image_path)
-            <img class="aspect-square w-full rounded-lg object-cover bg-white" src="{{ asset('storage/'.$medicine->image_path) }}" alt="{{ $medicine->name }}">
+            <img class="aspect-square w-full object-cover" src="{{ asset('storage/'.$medicine->image_path) }}" alt="{{ $medicine->name }}">
         @else
-            <div class="product-image product-placeholder aspect-square text-3xl">KMJ</div>
+            <div class="product-image product-placeholder aspect-square h-auto text-3xl">KMJ</div>
         @endif
     </div>
     <div class="panel">
@@ -27,7 +33,7 @@
         </dl>
         @auth
             @if(auth()->user()->role === 'pasien')
-                <form class="mt-6 flex gap-2" method="post" action="{{ route('cart.add', $medicine) }}">
+                <form class="mt-6 form-actions" method="post" action="{{ route('cart.add', $medicine) }}">
                     @csrf
                     <input class="w-24" name="quantity" type="number" min="1" value="1">
                     <button class="btn btn-primary" type="submit">Tambah ke Cart</button>
@@ -36,6 +42,7 @@
         @else
             <a class="btn btn-primary mt-6" href="{{ route('login') }}">Login untuk Membeli</a>
         @endauth
+    </div>
     </div>
 </div>
 @endsection
