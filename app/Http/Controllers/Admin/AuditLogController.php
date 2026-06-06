@@ -11,6 +11,12 @@ class AuditLogController extends Controller
 {
     public function index(Request $request)
     {
+        $request->validate([
+            'user_id' => ['nullable', 'exists:users,id'],
+            'action' => ['nullable', 'string', 'max:120'],
+            'date' => ['nullable', 'date'],
+        ]);
+
         $query = AuditLog::with('user')->latest();
         $query->when($request->user_id, fn ($q, $id) => $q->where('user_id', $id));
         $query->when($request->action, fn ($q, $action) => $q->where('action', 'like', "%{$action}%"));

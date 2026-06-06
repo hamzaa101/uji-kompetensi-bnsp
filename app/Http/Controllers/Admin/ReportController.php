@@ -8,17 +8,20 @@ use App\Services\AuditLogService;
 use App\Services\ReportService;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
+use Throwable;
 
 class ReportController extends Controller
 {
     public function index(Request $request, ReportService $reports)
     {
         [$from, $to] = $this->range($request);
+        $daily = $reports->salesPerDay($from, $to);
 
         return view('admin.reports.index', [
             'from' => $from,
             'to' => $to,
-            'daily' => $reports->salesPerDay($from, $to),
+            'summary' => $this->summary($daily),
+            'daily' => $daily,
             'monthly' => $reports->salesPerMonth($from, $to),
             'topMedicines' => $reports->topMedicines($from, $to),
             'expiring' => $reports->expiringMedicines(90),
@@ -30,20 +33,28 @@ class ReportController extends Controller
     public function exportPdf(Request $request, ReportService $reports, AuditLogService $audit)
     {
         [$from, $to] = $this->range($request);
+        $daily = $reports->salesPerDay($from, $to);
         $payload = [
             'from' => $from,
             'to' => $to,
-            'daily' => $reports->salesPerDay($from, $to),
+            'summary' => $this->summary($daily),
+            'daily' => $daily,
             'monthly' => $reports->salesPerMonth($from, $to),
             'topMedicines' => $reports->topMedicines($from, $to),
             'statusRecap' => $reports->orderStatusRecap($from, $to),
             'criticalStock' => $reports->criticalStock(),
         ];
 
-        $pdf = new Dompdf;
-        $pdf->loadHtml(view('admin.reports.pdf', $payload)->render());
-        $pdf->setPaper('A4');
-        $pdf->render();
+        try {
+            $pdf = new Dompdf;
+            $pdf->loadHtml(view('admin.reports.pdf', $payload)->render());
+            $pdf->setPaper('A4');
+            $pdf->render();
+        } catch (Throwable $throwable) {
+            return redirect()
+                ->route('admin.reports.index', $request->query())
+                ->with('error', 'Export PDF gagal diproses: '.$throwable->getMessage());
+        }
 
         $audit->record('export_report_pdf', null, "Export PDF laporan {$from} - {$to}");
 
@@ -63,9 +74,22 @@ class ReportController extends Controller
 
     private function range(Request $request): array
     {
+        $request->validate([
+            'from' => ['nullable', 'date'],
+            'to' => ['nullable', 'date', 'after_or_equal:from'],
+        ]);
+
         return [
             $request->date('from')?->toDateString() ?? now()->subDays(30)->toDateString(),
             $request->date('to')?->toDateString() ?? now()->toDateString(),
+        ];
+    }
+
+    private function summary(array $daily): array
+    {
+        return [
+            'transactions' => array_sum(array_map(fn ($row) => (int) $row->transactions, $daily)),
+            'revenue' => array_sum(array_map(fn ($row) => (float) $row->revenue, $daily)),
         ];
     }
 }

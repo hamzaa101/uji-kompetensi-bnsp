@@ -11,6 +11,11 @@
 
     <div class="panel">
         <p class="section-description">Contoh file tersedia di <span class="font-medium">storage/app/examples/sample_medicines.csv</span>.</p>
+        @if($hasStalePendingImport)
+            <div class="alert alert-warning mt-4">
+                Ada import yang masih pending lebih dari 2 menit. Jalankan <span class="font-medium">php artisan queue:work</span> agar job database queue diproses.
+            </div>
+        @endif
         <form class="mt-4 form-actions" method="post" enctype="multipart/form-data" action="{{ route('admin.imports.store') }}">
             @csrf
             <input type="file" name="csv" accept=".csv,text/csv" required>
@@ -22,7 +27,13 @@
         <h2 class="section-title">Status Import</h2>
         <div class="table-wrap mt-4"><table><thead><tr><th>File</th><th>Status</th><th>Progress</th><th>Error</th><th>Dibuat</th></tr></thead><tbody>
             @forelse($imports as $import)
-                <tr><td>{{ $import->original_name }}</td><td><span class="status status-{{ $import->status === 'failed' ? 'critical' : ($import->status === 'completed' ? 'success' : 'info') }}">{{ $import->status }}</span></td><td>{{ $import->processed_rows }}/{{ $import->total_rows }}</td><td>{{ $import->error_message }}</td><td>{{ $import->created_at->format('d M Y H:i') }}</td></tr>
+                <tr>
+                    <td class="text-cell">{{ $import->original_name }}</td>
+                    <td><span class="status status-{{ $import->status === 'failed' ? 'critical' : ($import->status === 'completed' ? 'success' : 'info') }}">{{ $import->status }}</span></td>
+                    <td>{{ $import->processed_rows }}/{{ $import->total_rows }}</td>
+                    <td class="text-cell">{{ $import->error_message ?: '-' }}</td>
+                    <td>{{ $import->created_at->format('d M Y H:i') }}</td>
+                </tr>
             @empty
                 <tr><td colspan="5" class="empty">Belum ada import.</td></tr>
             @endforelse

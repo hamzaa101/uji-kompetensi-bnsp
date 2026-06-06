@@ -6,6 +6,8 @@
         body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color: #111827; }
         h1 { font-size: 20px; margin-bottom: 4px; }
         h2 { font-size: 14px; margin-top: 22px; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+        .summary { margin: 12px 0; }
+        .summary td { font-size: 13px; font-weight: bold; }
         table { width: 100%; border-collapse: collapse; margin-top: 8px; }
         th, td { border: 1px solid #cbd5e1; padding: 6px; text-align: left; }
         th { background: #f1f5f9; }
@@ -14,6 +16,12 @@
 <body>
     <h1>Laporan Penjualan Klinik Makmur Jaya</h1>
     <p>Periode: {{ $from }} sampai {{ $to }}</p>
+    <table class="summary">
+        <tr>
+            <td>Total Penjualan: Rp {{ number_format($summary['revenue'], 0, ',', '.') }}</td>
+            <td>Total Transaksi: {{ number_format($summary['transactions'], 0, ',', '.') }}</td>
+        </tr>
+    </table>
     <h2>Penjualan Harian</h2>
     <table><thead><tr><th>Tanggal</th><th>Transaksi</th><th>Omzet</th></tr></thead><tbody>@foreach($daily as $row)<tr><td>{{ $row->period }}</td><td>{{ $row->transactions }}</td><td>Rp {{ number_format($row->revenue, 0, ',', '.') }}</td></tr>@endforeach</tbody></table>
     <h2>Obat Terlaris</h2>

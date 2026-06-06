@@ -13,12 +13,32 @@ class BatchController extends Controller
 {
     public function index(Request $request)
     {
+        $request->validate([
+            'medicine_id' => ['nullable', 'exists:medicines,id'],
+            'status' => ['nullable', 'in:critical,expiring,expired,empty'],
+        ]);
+
         $query = MedicineBatch::with('medicine.category')->orderBy('expiry_date');
         $query->when($request->medicine_id, fn ($q, $id) => $q->where('medicine_id', $id));
+        $query->when($request->status, function ($q, string $status) {
+            match ($status) {
+                'critical' => $q->where('quantity', '<=', 5),
+                'expired' => $q->whereDate('expiry_date', '<', now()->toDateString()),
+                'expiring' => $q->whereBetween('expiry_date', [now()->toDateString(), now()->addDays(30)->toDateString()]),
+                'empty' => $q->where('quantity', 0),
+                default => null,
+            };
+        });
 
         return view('admin.batches.index', [
             'batches' => $query->paginate(15)->withQueryString(),
             'medicines' => Medicine::orderBy('name')->get(),
+            'statuses' => [
+                'critical' => 'Stok kritis',
+                'expiring' => 'Hampir expired',
+                'expired' => 'Expired',
+                'empty' => 'Stok kosong',
+            ],
         ]);
     }
 
@@ -54,7 +74,7 @@ class BatchController extends Controller
     {
         $before = $medicineBatch->quantity;
         $data = $this->validated($request);
-        $data['initial_quantity'] = $data['initial_quantity'] ?? $medicineBatch->initial_quantity;
+        $data['initial_quantity'] = $data['initial_quantity'] ?? max($medicineBatch->initial_quantity, $data['quantity']);
         $medicineBatch->update($data);
 
         $diff = $medicineBatch->quantity - $before;
@@ -88,8 +108,8 @@ class BatchController extends Controller
             'medicine_id' => ['required', 'exists:medicines,id'],
             'batch_number' => ['required', 'max:80'],
             'quantity' => ['required', 'integer', 'min:0'],
-            'initial_quantity' => ['nullable', 'integer', 'min:0'],
-            'expiry_date' => ['required', 'date'],
+            'initial_quantity' => ['nullable', 'integer', 'min:0', 'gte:quantity'],
+            'expiry_date' => ['required', 'date', 'after_or_equal:today'],
             'purchase_price' => ['nullable', 'numeric', 'min:0'],
             'received_at' => ['nullable', 'date'],
         ]);

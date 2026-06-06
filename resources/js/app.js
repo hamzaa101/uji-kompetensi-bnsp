@@ -460,6 +460,7 @@ function initMonitoringPolling() {
             updateMetricText(metrics, 'queue_pending', metric.queue_pending);
             updateMetricText(metrics, 'request_count', metric.request_count);
             updateMetricText(metrics, 'error_count', metric.error_count);
+            updateMetricText(metrics, 'critical_notification_count', metric.critical_notification_count);
             updateMetricText(metrics, 'avg_response_time', `${metric.avg_response_time} ms`);
         } catch {
             // Monitoring is informational; the page remains usable if polling fails.

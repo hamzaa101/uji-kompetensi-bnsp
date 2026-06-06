@@ -12,6 +12,10 @@ class ErrorLogController extends Controller
 {
     public function index(Request $request)
     {
+        $request->validate([
+            'severity' => ['nullable', 'in:info,warning,critical'],
+        ]);
+
         $query = ErrorLog::latest();
         $query->when($request->severity, fn ($q, $severity) => $q->where('severity', $severity));
 
