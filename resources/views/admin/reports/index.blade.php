@@ -9,8 +9,8 @@
         description="Rekap transaksi, omzet, stok kritis, dan batch hampir kedaluwarsa untuk kebutuhan evaluasi."
     >
         <x-slot:actions>
-                <a class="btn btn-primary" href="{{ route('admin.reports.pdf', request()->query()) }}">Export PDF</a>
-                <form method="post" action="{{ route('admin.reports.generate-job', request()->query()) }}">@csrf <button class="btn btn-muted" type="submit">Queue Report</button></form>
+            <a class="btn btn-primary" href="{{ route('admin.reports.pdf', request()->query()) }}">Export PDF</a>
+            <form method="post" action="{{ route('admin.reports.generate-job', request()->query()) }}">@csrf <button class="btn btn-muted" type="submit">Queue Report</button></form>
         </x-slot:actions>
     </x-page-header>
 
@@ -20,6 +20,12 @@
             <input type="date" name="to" value="{{ $to }}">
             <button class="btn btn-primary" type="submit">Terapkan</button>
         </form>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-3">
+        <div class="stat"><span>Total Penjualan</span><strong>Rp {{ number_format($summary['revenue'], 0, ',', '.') }}</strong></div>
+        <div class="stat"><span>Total Transaksi</span><strong>{{ number_format($summary['transactions'], 0, ',', '.') }}</strong></div>
+        <div class="stat"><span>Periode</span><strong class="stat-range">{{ $from }} - {{ $to }}</strong></div>
     </div>
 
     <div class="grid gap-4 xl:grid-cols-2">

@@ -3,16 +3,16 @@
     $menus = [
         'admin' => [
             ['label' => 'Dashboard', 'route' => 'admin.dashboard'],
-            ['label' => 'Kategori', 'route' => 'admin.categories.index'],
-            ['label' => 'Supplier', 'route' => 'admin.suppliers.index'],
-            ['label' => 'Obat', 'route' => 'admin.medicines.index'],
-            ['label' => 'Batch Stok', 'route' => 'admin.medicine-batches.index'],
-            ['label' => 'Laporan', 'route' => 'admin.reports.index'],
+            ['label' => 'Kategori', 'route' => 'admin.categories.index', 'active' => 'admin.categories.*'],
+            ['label' => 'Supplier', 'route' => 'admin.suppliers.index', 'active' => 'admin.suppliers.*'],
+            ['label' => 'Obat', 'route' => 'admin.medicines.index', 'active' => 'admin.medicines.*'],
+            ['label' => 'Batch Stok', 'route' => 'admin.medicine-batches.index', 'active' => 'admin.medicine-batches.*'],
+            ['label' => 'Laporan', 'route' => 'admin.reports.index', 'active' => 'admin.reports.*'],
             ['label' => 'Import CSV', 'route' => 'admin.imports.index'],
             ['label' => 'Monitoring', 'route' => 'admin.monitoring.index'],
-            ['label' => 'Error Log', 'route' => 'admin.error-logs.index'],
+            ['label' => 'Error Log', 'route' => 'admin.error-logs.index', 'active' => 'admin.error-logs.*'],
             ['label' => 'Audit Log', 'route' => 'admin.audit-logs.index'],
-            ['label' => 'Simulasi', 'route' => 'admin.simulations.index'],
+            ['label' => 'Simulasi', 'route' => 'admin.simulations.index', 'active' => 'admin.simulations.*'],
         ],
         'apoteker' => [
             ['label' => 'Dashboard', 'route' => 'apoteker.dashboard'],
@@ -46,8 +46,9 @@
 
     <nav class="sidebar-nav">
         @foreach($items as $item)
+            @php($activePatterns = (array) ($item['active'] ?? $item['route']))
             <a
-                class="side-link {{ request()->routeIs($item['route']) ? 'is-active' : '' }}"
+                class="side-link {{ request()->routeIs(...$activePatterns) ? 'is-active' : '' }}"
                 href="{{ route($item['route']) }}"
                 title="{{ $item['label'] }}"
             >

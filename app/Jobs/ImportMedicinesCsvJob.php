@@ -31,10 +31,20 @@ class ImportMedicinesCsvJob implements ShouldQueue
                 throw new \RuntimeException('File CSV tidak dapat dibuka.');
             }
 
-            $header = array_map(fn ($value) => Str::snake(trim((string) $value)), fgetcsv($handle) ?: []);
+            $rawHeader = fgetcsv($handle);
+            if (! $rawHeader) {
+                throw new \RuntimeException('Header CSV tidak ditemukan.');
+            }
+
+            $header = array_map(fn ($value) => Str::snake(trim((string) $value)), $rawHeader);
+            if (! in_array('name', $header, true)) {
+                throw new \RuntimeException('CSV wajib memiliki kolom name.');
+            }
+
             $rows = [];
             while (($data = fgetcsv($handle)) !== false) {
-                $rows[] = array_combine($header, array_pad($data, count($header), null));
+                $normalized = array_slice(array_pad($data, count($header), null), 0, count($header));
+                $rows[] = array_combine($header, $normalized);
             }
             fclose($handle);
 

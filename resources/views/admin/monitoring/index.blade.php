@@ -25,6 +25,7 @@
             <div class="stat"><span>Queue Pending</span><strong data-key="queue_pending">{{ $metric->queue_pending }}</strong></div>
             <div class="stat"><span>Request Count</span><strong data-key="request_count">{{ $metric->request_count }}</strong></div>
             <div class="stat"><span>Error Count</span><strong data-key="error_count">{{ $metric->error_count }}</strong></div>
+            <div class="stat"><span>Critical Notification</span><strong data-key="critical_notification_count">{{ $metric->critical_notification_count ?? 0 }}</strong></div>
             <div class="stat"><span>Avg Response</span><strong data-key="avg_response_time">{{ $metric->avg_response_time }} ms</strong></div>
         </div>
     </div>

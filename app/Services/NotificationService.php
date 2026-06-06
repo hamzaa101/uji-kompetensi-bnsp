@@ -38,6 +38,13 @@ class NotificationService
             $days = now()->startOfDay()->diffInDays($batch->expiry_date, false);
             $this->create(
                 null,
+                'admin',
+                'Obat hampir kedaluwarsa',
+                "{$batch->medicine->name} batch {$batch->batch_number} kedaluwarsa dalam {$days} hari.",
+                $days <= 30 ? 'critical' : 'warning'
+            );
+            $this->create(
+                null,
                 'apoteker',
                 'Obat hampir kedaluwarsa',
                 "{$batch->medicine->name} batch {$batch->batch_number} kedaluwarsa dalam {$days} hari.",
