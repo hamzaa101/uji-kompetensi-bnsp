@@ -31,14 +31,18 @@ class SaleController extends Controller
             'payment_method' => ['required', 'in:cash,transfer,ewallet,insurance'],
             'notes' => ['nullable', 'string'],
             'items' => ['required', 'array'],
-            'items.*.medicine_id' => ['required', 'exists:medicines,id'],
-            'items.*.quantity' => ['required', 'integer', 'min:1'],
+            'items.*.medicine_id' => ['nullable', 'exists:medicines,id'],
+            'items.*.quantity' => ['nullable', 'integer', 'min:1'],
         ]);
 
         $items = collect($data['items'])
-            ->filter(fn ($row) => filled($row['medicine_id']) && (int) $row['quantity'] > 0)
+            ->filter(fn ($row) => filled($row['medicine_id']) && (int) ($row['quantity'] ?? 0) > 0)
             ->values()
             ->all();
+
+        if ($items === []) {
+            return back()->withErrors(['items' => 'Tambahkan minimal satu obat.'])->withInput();
+        }
 
         try {
             $order = $checkout->offlineSale($request->user(), $items, $data['payment_method'], $data['notes'] ?? null);

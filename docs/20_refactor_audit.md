@@ -2,6 +2,17 @@
 
 Tanggal audit: 2026-06-06
 
+## Status Terbaru
+
+Audit ini adalah baseline awal sebelum perbaikan bertahap. Kondisi terbaru setelah tahap layout, UI, Chart.js, polling, regression test, dan demo readiness dirangkum di:
+
+- `docs/21_ui_refactor_log.md`
+- `docs/22_demo_checklist.md`
+
+Beberapa risiko yang ditulis di audit ini sudah ditangani, terutama sidebar responsive, chart lifecycle, polling notifikasi/monitoring, dan regression test alur demo.
+
+Mulai bagian berikutnya sampai akhir dokumen adalah catatan historis kondisi awal sebelum refactor. Untuk status terkini, gunakan dokumen tahap 21 dan checklist tahap 22.
+
 ## Scope Audit
 
 Audit ini dilakukan sebagai baseline sebelum refactor bertahap. Tidak ada refactor besar, penggantian stack, atau perubahan fitur bisnis pada tahap ini.
